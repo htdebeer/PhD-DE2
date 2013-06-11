@@ -16,6 +16,7 @@ class WGlass extends Widget
     @place_at @x, @y
     @move_handler = null
     @graph = null
+
   
   start_manual_diff: =>
     @glasspane.mouseover @show_longdrink
@@ -29,7 +30,7 @@ class WGlass extends Widget
     @lf.show()
     @llp.show()
     @lrp.show()
-    @move_handler = @move_handler ? @move_longdrink @
+    @move_handler = @move_handler ? @make_draggable @
     @glasspane.mousemove @move_handler
 
   hide_longdrink: =>
@@ -283,13 +284,14 @@ class WGlass extends Widget
     @lrp.attr
       fill: 'gray'
     @lrp.hide()
-    
-    @glasspane = @canvas.path @paths.bowl
+
+    @glasspane = @canvas.path "#{@paths.bowl} #{@paths.base}"
     @glasspane.attr
       fill: 'white'
       'fill-opacity': 0
       'stroke-width': 5
       'stroke-opacity': 0
+      'stroke': 'gray'
 
     @widgets.push @glasspane
       

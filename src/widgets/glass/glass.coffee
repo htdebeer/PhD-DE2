@@ -103,7 +103,6 @@ class Glass
 
           @r = @_compute_r @path, @foot, @height_in_mm, @unit unless import_object?.r
 
-          console.log @r
           # The function vol(h), 0 ≤ h ≤ maximum_height with increments of one
           # tenth of a mm. This function is only computed when needed. That is
           # when filling up the glass or converting between volume and
