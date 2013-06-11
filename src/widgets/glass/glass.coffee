@@ -30,9 +30,36 @@ class Glass
           y: @edge.y
         height_in_mm: @height_in_mm
         spec: @spec
-      JSON.stringify export_object
+      JSON.stringify export_object, null, '  '
 
-
+    to_full_json: ->
+      # export to json: path, foot, stem, bowl, edge, height_in_mm, sepc
+      export_object =
+        path: @path
+        foot:
+          x: @foot.x
+          y: @foot.y
+        stem:
+          x: @stem.x
+          y: @stem.y
+        bowl:
+          x: @bowl.x
+          y: @bowl.y
+        bowl_start: @bowl_start
+        edge:
+          x: @edge.x
+          y: @edge.y
+        height_in_mm: @height_in_mm
+        unit: @unit
+        spec: @spec
+        vol: @vol
+        r: @r
+        speed: @speed
+        maximum_height: @maximum_height
+        maximum_volume: @maximum_volume
+        maximum_speed: @maximum_speed
+    
+      JSON.stringify export_object, null, '  '
 
     constructor: (path, foot, stem, bowl, edge, height_in_mm, spec = {
         round_max: "cl",
@@ -64,6 +91,37 @@ class Glass
             round_max: "cl",
             mm_from_top: 5
           }
+          # Initialization
+          # Conversion unit between pixels and mm in pixels per mm
+          @unit = import_object?.unit ? (Math.abs(@edge.y - @foot.y ) / @height_in_mm)
+          # Compute the start of the bowl; 0 ≤ bowl_start ≤ maximum_height
+          @bowl_start = import_object?.bowl_start ? (@height_in_mm - (Math.abs(@bowl.y - @edge.y) / @unit))
+
+          # Determine the function r(h), 0 ≤ h ≤ height_in_mm with increments
+          # of one tenth of a mm. to compute the radius of the glass at every height. 
+          @r = import_object?.r ? []
+
+          @r = @_compute_r @path, @foot, @height_in_mm, @unit unless import_object?.r
+
+          console.log @r
+          # The function vol(h), 0 ≤ h ≤ maximum_height with increments of one
+          # tenth of a mm. This function is only computed when needed. That is
+          # when filling up the glass or converting between volume and
+          # corresponding height and vice versa.
+          @vol = import_object?.vol ? []
+
+          # compute speed as well
+          @speed = import_object?.speed ? []
+
+          # Compute the maximum volume and corresponding height supported by
+          # this glass
+          @maximum_volume = import_object?.maximum_volume ? 0
+          @maximum_height = import_object?.maximum_height ? 0
+          @maximum_speed =  import_object?.maximum_speed ? 0
+          @_determine_maximum( @height_in_mm - @spec.mm_from_top, @spec.round_max ) if @maximum_volume is 0 or 
+            @maximum_height is 0 or
+            @maximum_speed is 0
+          
         else
           @path = path
           @foot = foot
@@ -72,32 +130,32 @@ class Glass
           @edge = edge
           @height_in_mm = height_in_mm
           @spec = spec
-        # Initialization
-        # Conversion unit between pixels and mm in pixels per mm
-        @unit = Math.abs(@edge.y - @foot.y ) / @height_in_mm
-        # Compute the start of the bowl; 0 ≤ bowl_start ≤ maximum_height
-        @bowl_start = @height_in_mm - (Math.abs(@bowl.y - @edge.y) / @unit)
+          # Initialization
+          # Conversion unit between pixels and mm in pixels per mm
+          @unit = Math.abs(@edge.y - @foot.y ) / @height_in_mm
+          # Compute the start of the bowl; 0 ≤ bowl_start ≤ maximum_height
+          @bowl_start = @height_in_mm - (Math.abs(@bowl.y - @edge.y) / @unit)
 
-        # Determine the function r(h), 0 ≤ h ≤ height_in_mm with increments
-        # of one tenth of a mm. to compute the radius of the glass at every height. 
-        @r = []
-        @r = @_compute_r @path, @foot, @height_in_mm, @unit
+          # Determine the function r(h), 0 ≤ h ≤ height_in_mm with increments
+          # of one tenth of a mm. to compute the radius of the glass at every height. 
+          @r = []
+          @r = @_compute_r @path, @foot, @height_in_mm, @unit
 
-        # The function vol(h), 0 ≤ h ≤ maximum_height with increments of one
-        # tenth of a mm. This function is only computed when needed. That is
-        # when filling up the glass or converting between volume and
-        # corresponding height and vice versa.
-        @vol = []
+          # The function vol(h), 0 ≤ h ≤ maximum_height with increments of one
+          # tenth of a mm. This function is only computed when needed. That is
+          # when filling up the glass or converting between volume and
+          # corresponding height and vice versa.
+          @vol = []
 
-        # compute speed as well
-        @speed = []
+          # compute speed as well
+          @speed = []
 
-        # Compute the maximum volume and corresponding height supported by
-        # this glass
-        @maximum_volume = 0
-        @maximum_height = 0
-        @maximum_speed = 0
-        @_determine_maximum( @height_in_mm - @spec.mm_from_top, @spec.round_max )
+          # Compute the maximum volume and corresponding height supported by
+          # this glass
+          @maximum_volume = 0
+          @maximum_height = 0
+          @maximum_speed = 0
+          @_determine_maximum( @height_in_mm - @spec.mm_from_top, @spec.round_max )
 
         # This glass is empty when freshly created, of course.
         @make_empty()

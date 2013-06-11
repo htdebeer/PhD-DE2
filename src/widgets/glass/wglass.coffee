@@ -1,7 +1,10 @@
 ###
 ###
 
-Widget = require '../../widget'
+Widget = require '../widget'
+Glass = require './glass'
+MeasureLine = require './measure_line'
+WMeasureLine = require './wmeasure_line'
 
 class WGlass extends Widget
 
