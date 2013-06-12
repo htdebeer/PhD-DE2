@@ -17,152 +17,6 @@ class WGlass extends Widget
     @move_handler = null
     @graph = null
 
-  
-  start_manual_diff: =>
-    @glasspane.mouseover @show_longdrink
-    @glasspane.mouseout @hide_longdrink
-
-  show_longdrink: =>
-    @longdrink.show()
-    @lml.show()
-    @lbl.show()
-    @ll.show()
-    @lf.show()
-    @llp.show()
-    @lrp.show()
-    @move_handler = @move_handler ? @make_draggable @
-    @glasspane.mousemove @move_handler
-
-  hide_longdrink: =>
-    @longdrink.hide()
-    @lml.hide()
-    @lbl.hide()
-    @ll.hide()
-    @lf.hide()
-    @llp.hide()
-    @lrp.hide()
-    @lgl.hide()
-    @gp.hide()
-  
-  fit_point: (x, y) ->
-    point =
-      x: x - @canvas.canvas.parentNode.offsetLeft
-      y: y - @canvas.canvas.parentNode.offsetTop
-    point
-
-  set_graph: (graph) ->
-    @graph = graph
-
-  del_graph: ->
-    @graph = null
-
-  move_longdrink: (glassrep) ->
-    (e, x, y) =>
-      # First fix the point on the page
-      p = glassrep.fit_point x, y
-      # Then remove the translate of the glass representation to put it the
-      # same coordinate system as the original path
-      py = p.y - @dy
-      # compute the height from the foot and convert it into tenth of mm
-      ph = glassrep.points.foot.right.y - py
-      h = Math.ceil((ph / glassrep.glass.unit) * Glass.TENTH_OF_MM)
-      # find corresponding point on the glass contour
-      length = glassrep.lengths[h]
-      right = Raphael.getPointAtLength glassrep.glass.path, length
-      # compute the left hand point
-      left = right.x - 2*(right.x - glassrep.glass.edge.x)
-      # compute a nice volume for the longdrink glas with height >= 100
-      # pixels
-      # radius
-      r = (right.x - left)/2
-      rmm = r / glassrep.glass.unit
-      # start around about 2 cm
-      hi = Math.floor(20 * glassrep.glass.unit)
-
-      compute_vol = (rmm, h) ->
-        hmm = h / glassrep.glass.unit
-        Math.floor(Math.PI * Math.pow(rmm, 2) * hmm/1000)
-
-      while ((compute_vol(rmm, hi) % 2) isnt 0 and (compute_vol(rmm, hi) % 10) isnt 5)
-        hi++
-
-      # hi is a nice volume
-      vol = compute_vol(rmm, hi)
-      BELOW = 10 * glassrep.glass.unit
-      # set the max and bottom lines
-      # start the longdrink glass about a cm below this point
-      if @spec.diff_graph and @graph
-        # draw the manual diff over the graph
-        OVER_GRAPH_LENGTH = 1000
-        # draw and set the longdrnk graph line lgl and set point on graph gp
-        gheight = Math.ceil((ph / glassrep.glass.unit) )
-        gvol = @glass.volume_at_height gheight
-        line = @graph.computer_line
-        gpx = line.min.x + gvol / line.x_unit.per_pixel
-        gpy = line.max.y - (gheight/10) / line.y_unit.per_pixel
-        halfvol = vol / 2
-        halfvolpx = halfvol / line.x_unit.per_pixel
-        lglpath = "M#{gpx},#{gpy}l#{halfvolpx},#{-hi+BELOW}M#{gpx},#{gpy}l-#{halfvolpx},#{BELOW}"
-        @lgl.attr
-          path: lglpath
-        @lgl.show().toFront()
-        @gp.attr
-          cx: gpx
-          cy: gpy
-        @gp.show().toFront()
-      else
-        @lgl.hide()
-        @gp.hide()
-        OVER_GRAPH_LENGTH = 0
-
-
-      @lf.attr
-        x: left + @dx
-        y: right.y + @dy
-        width: right.x - left
-        height: BELOW
-
-      path = "M#{right.x},#{right.y-hi+BELOW}H#{-@dx+10}"
-      path += "M#{right.x},#{right.y-hi+BELOW}h#{OVER_GRAPH_LENGTH}"
-      @lml.attr
-        path: path
-        transform: "t#{@dx},#{@dy}"
-      @lml.toFront()
-      
-      path = "M#{right.x},#{right.y+BELOW}H#{-@dx+10}"
-      path += "M#{right.x},#{right.y+BELOW}h#{OVER_GRAPH_LENGTH}"
-      @lbl.attr
-        path: path
-        transform: "t#{@dx},#{@dy}"
-      @lbl.toFront()
-
-      # generate the longdrink glass
-      path = "M#{right.x},#{right.y+BELOW}v-#{hi+10}M#{right.x},#{right.y+BELOW}L#{left},#{right.y+BELOW}v-#{hi+10}"
-      # and display it after translating it as the glass is translated
-      @longdrink.attr
-        path: path
-        transform: "t#{@dx},#{@dy}"
-      # display the points
-      @llp.attr
-        cx: left + @dx
-        cy: right.y + @dy
-      @lrp.attr
-        cx: right.x + @dx
-        cy: right.y + @dy
-      # and place label just above the max line
-      #
-      @ll.attr
-        text: "#{vol} ml"
-        transform: "t#{left+@dx+10},#{right.y-hi+@dy-10+BELOW}"
-
-  stop_manual_diff: =>
-    @longdrink.hide()
-    @lgl.hide()
-    @gp.hide()
-    @glasspane.unmousemove @move_handler
-    @glasspane.unmouseover @show_longdrink
-    @glasspane.unmouseout @hide_longdrink
-
   fill_to_height: (height_in_mm) ->
     ###
     Update the fill-part to correspond to a water level equal to the height_in_mm.
@@ -199,7 +53,7 @@ class WGlass extends Widget
 
     @water_level = @canvas.path "M0,0"
     @water_level.attr
-      fill: '#abf'
+      fill: @spec?.fill ? '#abf'
       'fill-opacity': 0.4
       stroke: 'none'
     @widgets.push @water_level
@@ -412,5 +266,144 @@ class WGlass extends Widget
     mirror = ('C'+ segment.join(",") for segment in mirrorlist.reverse()).join("")
     mirror
 
+  set_graph: (graph) ->
+    @graph = graph
+
+  del_graph: ->
+    @graph = null
+
+  move_longdrink: (glassrep) ->
+    (e, x, y) =>
+      # First fix the point on the page
+      p = glassrep.fit_point x, y
+      # Then remove the translate of the glass representation to put it the
+      # same coordinate system as the original path
+      py = p.y - @dy
+      # compute the height from the foot and convert it into tenth of mm
+      ph = glassrep.points.foot.right.y - py
+      h = Math.ceil((ph / glassrep.glass.unit) * Glass.TENTH_OF_MM)
+      # find corresponding point on the glass contour
+      length = glassrep.lengths[h]
+      right = Raphael.getPointAtLength glassrep.glass.path, length
+      # compute the left hand point
+      left = right.x - 2*(right.x - glassrep.glass.edge.x)
+      # compute a nice volume for the longdrink glas with height >= 100
+      # pixels
+      # radius
+      r = (right.x - left)/2
+      rmm = r / glassrep.glass.unit
+      # start around about 2 cm
+      hi = Math.floor(20 * glassrep.glass.unit)
+
+      compute_vol = (rmm, h) ->
+        hmm = h / glassrep.glass.unit
+        Math.floor(Math.PI * Math.pow(rmm, 2) * hmm/1000)
+
+      while ((compute_vol(rmm, hi) % 2) isnt 0 and (compute_vol(rmm, hi) % 10) isnt 5)
+        hi++
+
+      # hi is a nice volume
+      vol = compute_vol(rmm, hi)
+      BELOW = 10 * glassrep.glass.unit
+      # set the max and bottom lines
+      # start the longdrink glass about a cm below this point
+      if @spec.diff_graph and @graph
+        # draw the manual diff over the graph
+        OVER_GRAPH_LENGTH = 1000
+        # draw and set the longdrnk graph line lgl and set point on graph gp
+        gheight = Math.ceil((ph / glassrep.glass.unit) )
+        gvol = @glass.volume_at_height gheight
+        line = @graph.computer_line
+        gpx = line.min.x + gvol / line.x_unit.per_pixel
+        gpy = line.max.y - (gheight/10) / line.y_unit.per_pixel
+        halfvol = vol / 2
+        halfvolpx = halfvol / line.x_unit.per_pixel
+        lglpath = "M#{gpx},#{gpy}l#{halfvolpx},#{-hi+BELOW}M#{gpx},#{gpy}l-#{halfvolpx},#{BELOW}"
+        @lgl.attr
+          path: lglpath
+        @lgl.show().toFront()
+        @gp.attr
+          cx: gpx
+          cy: gpy
+        @gp.show().toFront()
+      else
+        @lgl.hide()
+        @gp.hide()
+        OVER_GRAPH_LENGTH = 0
+
+
+      @lf.attr
+        x: left + @dx
+        y: right.y + @dy
+        width: right.x - left
+        height: BELOW
+
+      path = "M#{right.x},#{right.y-hi+BELOW}H#{-@dx+10}"
+      path += "M#{right.x},#{right.y-hi+BELOW}h#{OVER_GRAPH_LENGTH}"
+      @lml.attr
+        path: path
+        transform: "t#{@dx},#{@dy}"
+      @lml.toFront()
+      
+      path = "M#{right.x},#{right.y+BELOW}H#{-@dx+10}"
+      path += "M#{right.x},#{right.y+BELOW}h#{OVER_GRAPH_LENGTH}"
+      @lbl.attr
+        path: path
+        transform: "t#{@dx},#{@dy}"
+      @lbl.toFront()
+
+      # generate the longdrink glass
+      path = "M#{right.x},#{right.y+BELOW}v-#{hi+10}M#{right.x},#{right.y+BELOW}L#{left},#{right.y+BELOW}v-#{hi+10}"
+      # and display it after translating it as the glass is translated
+      @longdrink.attr
+        path: path
+        transform: "t#{@dx},#{@dy}"
+      # display the points
+      @llp.attr
+        cx: left + @dx
+        cy: right.y + @dy
+      @lrp.attr
+        cx: right.x + @dx
+        cy: right.y + @dy
+      # and place label just above the max line
+      #
+      @ll.attr
+        text: "#{vol} ml"
+        transform: "t#{left+@dx+10},#{right.y-hi+@dy-10+BELOW}"
+
+  stop_manual_diff: =>
+    @longdrink.hide()
+    @lgl.hide()
+    @gp.hide()
+    @glasspane.unmousemove @move_handler
+    @glasspane.unmouseover @show_longdrink
+    @glasspane.unmouseout @hide_longdrink
+  
+  start_manual_diff: =>
+    @glasspane.mouseover @show_longdrink
+    @glasspane.mouseout @hide_longdrink
+
+  show_longdrink: =>
+    @longdrink.show()
+    @lml.show()
+    @lbl.show()
+    @ll.show()
+    #@lf.show()
+    @llp.show()
+    @lrp.show()
+    @move_handler = @move_handler ? @move_longdrink @
+    @glasspane.mousemove @move_handler
+
+  hide_longdrink: =>
+    @longdrink.hide()
+    @lml.hide()
+    @lbl.hide()
+    @ll.hide()
+    #@lf.hide()
+    @llp.hide()
+    @lrp.hide()
+    @lgl.hide()
+    @gp.hide()
+  
 
 module.exports = WGlass

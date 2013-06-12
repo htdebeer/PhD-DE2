@@ -2,14 +2,17 @@
 (c) 2012, Huub de Beer (H.T.de.Beer@gmail.com)
 ###
 
-Ruler = require './ruler'
-class VerticalRuler extends Ruler
+WRuler = require './wruler'
+Widget = require '../widget'
 
-  constructor: (@canvas, @x, @y, @width, @height, @height_in_mm, @spec = {
-    orientation: "vertical"
-    rounded_corners: 5
-  }) ->
-    super(@canvas, @x, @y, @width, @height, @height_in_mm, @spec)
+class WVerticalRuler extends Widget
+
+  constructor: (@canvas, @x, @y, @width, @height, @height_in_mm, @spec = {} ) ->
+    @spec =
+      orientation: "vertical"
+      rounded_corners: 0
+
+    super(@canvas, @x, @y, @spec)
     @_draw()
     @_compute_geometry()
     @widgets.mouseover (e) =>
@@ -32,16 +35,16 @@ class VerticalRuler extends Ruler
 
   _place_pointer: (y) ->
     T_WIDTH = 10
-    T_HEIGHT = 2
+    T_HEIGHT = 4
     triangle = "l#{T_WIDTH},#{T_HEIGHT}v-#{2 * T_HEIGHT}l-#{T_WIDTH},#{T_HEIGHT}m#{T_WIDTH},0"
     pointer = @canvas.path "M#{@x+@width},#{y}" + triangle + "h#{(@spec['measure_line_width'] ? 500) - @width - T_WIDTH - 2}"
     pointer.attr
         fill: '#222'
         stroke: '#222'
-        'stroke-opacity': 0.5
-        'stroke-width': 0.5
+        'stroke-opacity': 0.75
+        'stroke-width': 1
         'fill-opacity': 1
-        'stroke-dasharray': '. '
+        'stroke-dasharray': '.'
 
     active = (elt) ->
         elt.attr
@@ -173,4 +176,4 @@ class VerticalRuler extends Ruler
         labels.push(@canvas.text x, y + Y_DISTANCE, "#{cm}")
     labels
 
-module.exports = VerticalRuler
+module.exports = WVerticalRuler

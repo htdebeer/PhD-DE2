@@ -2,31 +2,31 @@
 (c) 2012, Huub de Beer (H.T.de.Beer@gmail.com)
 ###
 
-Ruler = require './ruler'
-class HorizontalRuler extends Ruler
+Widget = require '../widget'
 
-  constructor: (@canvas, @x, @y, @width, @height, @height_in_mm, @spec = {
-    orientation: "vertical"
-    rounded_corners: 5
-  }) ->
-    super(@canvas, @x, @y, @width, @height, @height_in_mm, @spec)
+class WHorizontalRuler extends Widget
+
+  constructor: (@canvas, @x, @y, @width, @height, @height_in_mm, @spec = {}) ->
+    @spec =
+      orientation: "horizontal"
+      rounded_corners: 0
+
+    super(@canvas, @x, @y, @spec)
     @_draw()
     @_compute_geometry()
     @widgets.mouseover (e) =>
       @measure_line.show()
     @widgets.mouseout (e) =>
       @measure_line.hide()
-    @widgets.mousemove (e) =>
-      e = jQuery.event.fix e
-      x = e.pageX - @canvas.offset.left - @dx
-      @_move_measure_line x
-    @widgets.click (e) =>
-      @_place_pointer e
+    @widgets.mousemove (e, x, y) =>
+      p = @fit_point x, y
+      @_move_measure_line p.x
+    @widgets.click (e, x, y) =>
+      p = @fit_point x, y
+      @_place_pointer p.x
 
-  _place_pointer: (e) ->
-    e - jQuery.event.fix e
-    x = e.pageX - @canvas.offset.left
-    T_WIDTH = 2
+  _place_pointer: (x) ->
+    T_WIDTH = 4
     T_HEIGHT = 10
     triangle = "l#{T_WIDTH},-#{T_HEIGHT}h-#{2 * T_WIDTH}l#{T_WIDTH},#{T_HEIGHT}m0,0"
     pointer = @canvas.path "M#{x},#{@y}" +
@@ -34,10 +34,10 @@ class HorizontalRuler extends Ruler
     pointer.attr
         fill: '#222'
         stroke: '#222'
-        'stroke-opacity': 0.5
-        'stroke-width': 0.5
+        'stroke-opacity': 0.75
+        'stroke-width': 1
         'fill-opacity': 1
-        'stroke-dasharray': '. '
+        'stroke-dasharray': '.'
 
     active = (elt) ->
         elt.attr
@@ -83,7 +83,7 @@ class HorizontalRuler extends Ruler
   _move_measure_line: (x) ->
     MEASURELINE_LENGTH = @spec['measure_line_width'] ? 500
     @measure_line.attr
-      path: "M#{x},#{@y - @dy + @height}v-#{MEASURELINE_LENGTH}"
+      path: "M#{x},#{@y - @dy + @height}v-#{MEASURELINE_LENGTH + @height}"
       stroke: 'red'
       'stroke-opacity': 0.5
       'stroke-width': 1
@@ -175,4 +175,4 @@ class HorizontalRuler extends Ruler
     labels
 
 
-module.exports = HorizontalRuler
+module.exports = WHorizontalRuler
