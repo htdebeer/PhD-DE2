@@ -332,7 +332,7 @@ class Glass
         @vol[h]
         #=end volume_at_height
  
-    height_at_volume: (volume) ->
+    height_at_volume: (volume, floor = true) ->
         ###
         Compute the height of the water level in this glass when there is volume water in it.
 
@@ -350,118 +350,57 @@ class Glass
         height = @current_height * Glass.TENTH_OF_MM
         maxheight = @height_in_mm * Glass.TENTH_OF_MM
         height++ until @vol[height] > volume or height >= maxheight
-        Math.floor(height / Glass.TENTH_OF_MM)
+        if floor
+          Math.floor(height / Glass.TENTH_OF_MM)
+        else
+          height / Glass.TENTH_OF_MM
         #=end height_at_volume
+        
+
+    get_data: (flow_rate) ->
+      data = []
+
+      volume = 0
+      while volume < @maximum_volume
+        
+        height = (@height_at_volume volume, false) / 10
+        time = volume / flow_rate
+
+        data.push {
+          time: time
+          volume: volume
+          height: height
+        }
+
+        volume = volume + 1
       
-    get_current_graph: ->
-      @current_graph = @graph[Math.ceil(@current_height * Glass.TENTH_OF_MM )]
+      data
+     
+    get_hdata: (flow_rate, from_bowl = true) ->
+      data = []
 
-    create_graph: (paper, graph, line, x_axis, speed = false) ->
-      EPSILON = 0.01
-      switch x_axis
-        when 'vol'
-          if speed
-            # speed graph
-            # compute the number of pixels per tenth of mm
-            ptmm = 1/100 / line.y_unit.per_pixel
-            dvol = 0
-            @graph = []
-            path = "M0,0"
-            h = 0
-            while @vol[h] is 0
-              @graph.push path
-              h++
-           
-            x = line.min.x
-            y = line.max.y - (@speed[h] / line.y_unit.per_pixel)
-            path = "M#{x},#{y}"
-            vollast = 0
-            @graph.push path
-            speed_before = @speed[h]
+      # find last height under the bowl
+      h = 0
+      while @vol[h] is 0
+        h++
+      start = h - 1
+      while h < @vol.length and @vol[h] < @maximum_volume
+        height = (if from_bowl then (h - start) else h)/100
+        volume = @vol[h]
+        time = volume / flow_rate
+        
 
-            while h < @vol.length and @vol[h] < @maximum_volume
-              # next volume
-              dvol = @vol[h] - vollast
-              vollast = @vol[h]
-              dspeed = if speed_before isnt 0 then (@speed[h] - speed_before) else 0
-              speed_before = @speed[h]
-              speed_step = dspeed/line.y_unit.per_pixel*(-1)
+        data.push {
+          time: time
+          volume: volume
+          height: height
+        }
+
+        h++
+
+      data
 
 
-              #speed_step = if speed_step > EPSILON then speed_step else EPSILON
-              path += "l#{dvol/line.x_unit.per_pixel},#{speed_step}"
-              @graph.push path
-              h++
-
-            graph.attr
-              path: path
-            line.add_point x, y, graph
-            p = line.find_point_at x
-            line.add_freehand_line p, path
-            
-          else
-            # Normal graph, no speed
-            # compute the number of pixels per tenth of mm
-            ptmm = 1/100 / line.y_unit.per_pixel
-            dvol = 0
-            @graph = []
-            path = "M0,0"
-            h = 0
-            while @vol[h] is 0
-              @graph.push path
-              h++
-           
-            x = line.min.x
-            y = line.max.y - (h/100 / line.y_unit.per_pixel)
-            path = "M#{x},#{y}"
-            vollast = 0
-            @graph.push path
-
-            while h < @vol.length and @vol[h] < @maximum_volume
-              # next volume
-              dvol = @vol[h] - vollast
-              vollast = @vol[h]
-              path += "l#{dvol/line.x_unit.per_pixel},-#{ptmm}"
-              @graph.push path
-              h++
-
-            graph.attr
-              path: path
-            line.add_point x, y, graph
-            p = line.find_point_at x
-            line.add_freehand_line p, path
-        when 'time'
-          # compute the number of pixels per tenth of mm
-          ptmm = 1/100 / line.y_unit.per_pixel
-          dtime = 0
-          @graph = []
-          path = "M0,0"
-          h = 0
-          while @vol[h] is 0
-            @graph.push path
-            h++
-         
-          x = line.min.x
-          y = line.max.y - (h/100 / line.y_unit.per_pixel)
-          path = "M#{x},#{y}"
-          vollast = 0
-          add_time = 0
-          @graph.push path
-
-          while h < @vol.length and @vol[h] < @maximum_volume
-            # next volume
-            dvol = @vol[h] - vollast
-            vollast = @vol[h]
-            add_time = (dvol / speed)
-            path += "l#{add_time/line.x_unit.per_pixel},-#{ptmm}"
-            @graph.push path
-            h++
-            
-          graph.attr
-            path: path
-          line.add_point x, y, graph
-          p = line.find_point_at x
-          line.add_freehand_line p, path
 
     #=private
 

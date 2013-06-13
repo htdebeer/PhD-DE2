@@ -8,8 +8,44 @@
     <style>
         figure {
             margin-left: 2cm;
-            border: 1px solid gray;
         }
+
+        svg {
+            border: 1px solid black;
+        }
+
+        .axis path {
+            fill: none;
+            stroke: black;
+        }
+
+        .axis {
+            font-size: 10pt;
+            font-family: sans-serif;
+        }
+
+        .tick {
+            fill: none;
+            stroke: black;
+        }
+
+        #graph circle {
+            stroke: none;
+            fill: black;
+        }
+
+
+        #d3test path {
+            stroke-width:1;
+        }
+
+        #d3test rect {
+            fill-opacity: 0.3;
+            stroke-opactiy: 0.4;
+            stroke-width: 0.2;
+
+        }
+
     </style>
   </head>
   <body>
@@ -36,9 +72,18 @@
     </div>
 
     <figure id="test"></figure>
+    <button class="btn btn-primary" id="cocktail">Cocktail</button> 
+    <button class="btn btn-primary" id="erlenmeyer">Erlenmeyer</button> 
+
+    <button class="btn btn-primary" id="cocktailbar">Staafdiagram cocktail</button> 
+    <button class="btn btn-primary" id="erlenmeyerbar">Staafdiagram erlenmeyer</button> 
+
+    <figure id="d3test"></figure>
+    <figure id="graph"></figure>
   </body>
   <script src="lib/jquery.js"></script>
   <script src="lib/bootstrap.min.js"></script>
   <script src="lib/raphael.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="lib/bundle.js"></script>
 </html>
