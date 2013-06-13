@@ -20,7 +20,7 @@ WGlassGrafter = require './widgets/glass/wgrafter'
 
 
 cocktail_glass = new Glass cocktail_json
-erlenmeyer_glass = new Glass erlenmeyer_json
+#erlenmeyer_glass = new Glass erlenmeyer_json
 
 
 PIXEL_PER_MM = 455 / 15
@@ -36,14 +36,14 @@ edit_canvas = Raphael 'edit', WIDTH, HEIGHT
 grafter = new WGlassGrafter edit_canvas, 0, 0, WIDTH, HEIGHT, MM_PER_PIXEL
 
 
-erlenmeyer_representation = new WGlass canvas, 50, 35, erlenmeyer_glass,
+#erlenmeyer_representation = new WGlass canvas, 50, 35, erlenmeyer_glass,
   fill: 'red'
   
 cocktail_representation = new WGlass canvas, 40, 40, cocktail_glass
 
 selected = {selected: null}
 
-cocktail_representation.start_selectable( selected )
+#cocktail_representation.start_selectable( selected )
 erlenmeyer_representation.start_selectable( selected )
 # cocktail_representation.start_manual_diff()
 # Fixx manual diff later, if needed
@@ -55,7 +55,6 @@ RULER_WIDTH = 30
 RULER_LENGTH = HEIGHT - RULER_WIDTH
 MM_RULER = Math.ceil(RULER_LENGTH / PIXEL_PER_MM)
 
-console.log MM_PER_PIXEL, PIXEL_PER_MM
 
 vruler = new WVerticalRuler canvas, 0, 0, RULER_WIDTH, RULER_LENGTH, MM_RULER
 hruler = new WHorizontalRuler canvas, RULER_WIDTH, RULER_LENGTH, RULER_LENGTH, RULER_WIDTH, MM_RULER
