@@ -170,7 +170,7 @@ make_graph = (conf) ->
     line = d3.svg.line()
       .x((d) -> x_scale(d[X_QUANTITY.name]))
       .y((d) -> y_scale(d[Y_QUANTITY.name]))
-      .interpolate('linear')
+      .interpolate('cardinal-open')
 
     g = d3.select('#graph_container')
       .append('g')
@@ -179,8 +179,10 @@ make_graph = (conf) ->
 
     g.append('path')
       .attr('d', line(graph.data))
+      .attr('class', 'graph')
       .attr('fill', 'none')
       .attr('stroke', graph.color)
+
 
     toggle_tangents id
 
@@ -213,14 +215,6 @@ make_graph = (conf) ->
       graph.remove()
 
 
-  tangent = d3.select('#graph_container')
-    .append('line')
-      .attr('x1', 0)
-      .attr('y1', 0)
-      .attr('x2', 0)
-      .attr('y2', 0)
-      .attr('stroke', 'black')
-      .attr('stroke-width', 1)
 
   draw_tangents = (graph, id) ->
     g = d3.select('#graph_container')
@@ -228,33 +222,65 @@ make_graph = (conf) ->
       .attr('id', "#{id}-tangents")
       .attr('class', id)
 
-    g.selectAll('tangent')
-      .data(graph.data)
-      .enter()
-      .append('circle')
-        .attr('cx', (d) -> x_scale(d[X_QUANTITY.name]))
-        .attr('cy', (d) -> y_scale(d[Y_QUANTITY.name]))
-        .attr('r', 3)
-        .attr('fill', 'white')
-        .attr('fill-opacity', 0)
-        .attr('stroke', 'none')
-        .on('mouseover', (d, i) =>
-          prev =
-            x: if i > 0 then graph.data[i-1][X_QUANTITY.name] else d[X_QUANTITY.name]
-            y: if i > 0 then graph.data[i-1][Y_QUANTITY.name] else d[Y_QUANTITY.name]
-          next =
-            x: if i < graph.data.length then graph.data[i+1][X_QUANTITY.name] else d[X_QUANTITY.name]
-            y: if i < graph.data.length then graph.data[i+1][Y_QUANTITY.name] else d[Y_QUANTITY.name]
-          dd =
-            x: next.x - prev.x
-            y: next.y - prev.y
-          LENGTH = 10
+    line = d3.svg.line()
+      .x((d) -> x_scale(d[X_QUANTITY.name]))
+      .y((d) -> y_scale(d[Y_QUANTITY.name]))
+      .interpolate('cardinal-open')
 
+    g = d3.select('#graph_container')
+      .append('g')
+      .attr('id', "#{id}-tangents")
+      .attr('class', id)
 
-          tangent.attr('x1', x_scale(d[X_QUANTITY.name] - dd.x * LENGTH))
-            .attr('y1', y_scale(d[Y_QUANTITY.name] - dd.y * LENGTH))
-            .attr('x2', x_scale(d[X_QUANTITY.name] + dd.x * LENGTH))
-            .attr('y2', y_scale(d[Y_QUANTITY.name] + dd.y * LENGTH))
+    g.append('path')
+      .attr('d', line(graph.data))
+      .attr('fill', 'none')
+      .attr('stroke', 'white')
+      .attr('stroke-opacity', 0)
+      .attr('stroke-width', 7)
+      .on('mouseover', (d, i) =>
+
+    
+        line_path = d3.select("##{id}-tangents path")[0][0]
+
+       
+        length_at_point = 0
+        total_length = line_path.getTotalLength()
+        bigstep = 50
+        while (line_path.getPointAtLength(length_at_point).x < d3.mouse(line_path)[0] and length_at_point < total_length)
+          length_at_point += bigstep
+
+        length_at_point -= bigstep
+
+        while (line_path.getPointAtLength(length_at_point).x < d3.mouse(line_path)[0] and length_at_point < total_length)
+          length_at_point++
+        
+        this_point = line_path.getPointAtLength(length_at_point)
+
+        if length_at_point > 1 and length_at_point < total_length - 1
+          prev_point = line_path.getPointAtLength(length_at_point - 2)
+          next_point = line_path.getPointAtLength(length_at_point + 2)
+          delta =
+            x: next_point.x - prev_point.x
+            y: next_point.y - prev_point.y
+        else
+          return
+
+        LENGTH = 40
+
+        tangent = d3.select('#graph_container')
+          .append('line')
+            .attr('stroke', 'black')
+            .attr('class', 'tangent')
+            .attr('id', 'tangent')
+            .attr('stroke-width', 1)
+            .attr('x1', this_point.x - delta.x * LENGTH)
+            .attr('y1', this_point.y - delta.y * LENGTH)
+            .attr('x2', this_point.x + delta.x * LENGTH)
+            .attr('y2', this_point.y + delta.y * LENGTH)
+      )
+        .on('mouseout', (d,i) =>
+          d3.select('#tangent').remove()
         )
 
 
