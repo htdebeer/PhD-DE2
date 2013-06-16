@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <style>
+        .accordion-body[class*="in collapse"]{ overflow:visible;}
+        .accordion-body.in:hover { overflow:visible; }
+
+        .axis path {
+            fill: none;
+            stroke: black;
+        }
+
+        .axis {
+            font-size: 10pt;
+            font-family: sans-serif;
+        }
+
+        .tick {
+            fill: none;
+            stroke: black;
+        }
+    </style>
+  </head>
+  <body>
+      <h1>Test of flaskfiller 2.0</h1>
+      <div id="flaskfiller">
+      </div>
+  </body>
+  <script src="lib/jquery.js"></script>
+  <script src="lib/bootstrap.min.js"></script>
+  <script src="lib/raphael.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="lib/fftest.js"></script>
+</html>

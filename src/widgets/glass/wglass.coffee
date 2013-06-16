@@ -17,6 +17,29 @@ class WGlass extends Widget
     @move_handler = null
     @graph = null
 
+
+
+  start_filling: ->
+    # place tap on richt place
+    # SEP = 30
+    # tapbb = @tap.getBBox(true)
+
+    # @_compute_geometry()
+    # 
+    # 
+
+    # tapx = @geometry.center.x - (tapbb.width)/2
+    # tapy = @geometry.top - SEP
+    # @tap.transform "...T#{tapx},#{tapy}"
+    # @tap.show()
+    
+
+
+  stop_filling: ->
+    #@tap.hide()
+
+    
+
   fill_to_height: (height_in_mm) ->
     ###
     Update the fill-part to correspond to a water level equal to the height_in_mm.
@@ -80,6 +103,22 @@ class WGlass extends Widget
     max_ml_representation = new WMeasureLine @canvas, max_x, max_y, @max_ml
 
     @widgets.push max_ml_representation.widgets
+
+    tappath = "M 0 27.5 V 20 A 10 10 90 0 1 10 10 L 20 10 V 5
+                    H 12.5 A 1.25 1.25 90 0 1 12.5 2.25 H 21.25 
+                    A 1.25 1.25 180 0 1 23.75 2.25 H 32.5 
+                    A 1.25 1.25 90 0 1 32.5 5 H 25 V 10
+                    H 40 V 5 A 2.5 2.5 90 0 1 42.5 2.5 V 27.5
+                    A 2.5 2.5 90 0 1 40 25 V 20 H 12.5
+                    A 2.5 2.5 90 0 0 10 22.5 V 27.5 Z"
+    @tap = @canvas.path tappath
+    @tap.attr
+        stroke: '#bbb'
+        fill: '#ddd'
+        'fill-opacity': 0.2
+        transform: 's3'
+    @widgets.push @tap
+    @tap.hide()
 
     # max longdrink line
     # "fill"

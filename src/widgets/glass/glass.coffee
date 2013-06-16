@@ -159,7 +159,20 @@ class Glass
         # This glass is empty when freshly created, of course.
         @make_empty()
     #=end constructor
-    
+   
+    volume: ->
+      @current_volume
+
+    height: ->
+      # in cm: divide by 10
+      @current_height / 10
+
+    time: (flow_rate)->
+      @current_volume / flow_rate
+
+    to_time: (vol, flow_rate) ->
+      vol / flow_rate
+
     compute_speed: ->
       h = 0
       h_max = @vol.length - 1
@@ -199,7 +212,7 @@ class Glass
         @current_height = 0
         @current_height = @fill_to_volume initial_value
         @current_height++
-        @current_graph = "M0,0"
+        @current_time = 0
         #=end make_empty
     
     is_empty: ->
@@ -271,12 +284,13 @@ class Glass
         return:
             height_at_volume(volume)
         ###
+        fill_up = volume >= @current_volume
         if volume <= @maximum_volume
             @current_volume = volume
         else
             @current_volume = @maximum_volume
 
-        @current_height = @height_at_volume @current_volume
+        @current_height = @height_at_volume @current_volume, true, fill_up
         @current_height
     #=end fill_to_volume
     
@@ -332,7 +346,7 @@ class Glass
         @vol[h]
         #=end volume_at_height
  
-    height_at_volume: (volume, floor = true) ->
+    height_at_volume: (volume, floor = true, fill_up = true) ->
         ###
         Compute the height of the water level in this glass when there is volume water in it.
 
@@ -347,7 +361,10 @@ class Glass
         ###
 
         # Simply a linear search.
-        height = @current_height * Glass.TENTH_OF_MM
+        if not fill_up
+          height = 0
+        else
+          height = @current_height * Glass.TENTH_OF_MM
         maxheight = @height_in_mm * Glass.TENTH_OF_MM
         height++ until @vol[height] > volume or height >= maxheight
         if floor

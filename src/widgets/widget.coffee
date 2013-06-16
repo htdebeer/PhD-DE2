@@ -11,6 +11,9 @@ class Widget
     @dx = @dy = 0
     @selected = false
 
+  remove: ->
+    @widgets.remove()
+
   start_selectable: (@slot) =>
     @glasspane.mouseover @enable_selectable
     @glasspane.mouseout @disable_selectable
@@ -76,6 +79,12 @@ class Widget
   disable_draggable: =>
     @widgets.attr 'cursor', 'default'
     @widgets.undrag()
+
+  hide: ->
+    @widgets.hide()
+
+  show: ->
+    @widgets.show()
     
   place_at: (x, y) ->
     ###
