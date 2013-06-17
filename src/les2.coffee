@@ -52,7 +52,7 @@ $(document).ready ->
           name: 'time'
           label: 'verstreken tijd'
           unit: 'sec'
-          step: 1 / FLOW_RATE
+          step: 0.2
         volume:
           name: 'volume'
           label: 'volume'
@@ -62,5 +62,5 @@ $(document).ready ->
           name: 'height'
           label: 'hoogtestijging van het waterpeil'
           unit: 'cm'
-          step: 1
+          step: 0.1
 

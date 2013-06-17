@@ -22,7 +22,6 @@ class Simulation
       .attr('id', 'simulation')
 
     @canvas = Raphael 'simulation', @WIDTH, @HEIGHT
-    console.log "sdsdf"
 
     
     @glasses = []
@@ -44,10 +43,8 @@ class Simulation
       MM_RULER
 
   add_glass: (glass) ->
-    console.log glass.glass
     x = @RULER_WIDTH + (@WIDTH/2) - (glass.glass.edge.x / 2)
     y = @HEIGHT - (glass.glass.foot.y - glass.glass.edge.y) - @RULER_WIDTH
-    console.log x, y
     wglass = new WGlass @canvas,
       x,
       y,

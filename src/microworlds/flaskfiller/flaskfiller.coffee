@@ -29,7 +29,6 @@ class FlaskFiller
 
 
   change_glass: (glass) ->
-    console.log "changing"
     return =>
       @table.update_row( glass )
 

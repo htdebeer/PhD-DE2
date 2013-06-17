@@ -238,6 +238,13 @@ class GlassTable
   remove_row: (glass) ->
     glass.row.remove()
 
+  _name_exists: (name) ->
+    same_names = (glass.name for glass in @glasses when glass.name is name)
+    if same_names.length > 0
+      return true
+    else
+      return false
+
 
   _add_from_menu: (name, spec) ->
 
@@ -250,6 +257,12 @@ class GlassTable
         i++
 
       "##{colors.join ''}"
+
+    if @_name_exists(name)
+      i = 1
+      while @_name_exists("#{name}-#{i}")
+        i++
+      name = "#{name}-#{i}"
 
     return =>
       @flaskfiller.add( {

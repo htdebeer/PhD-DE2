@@ -374,7 +374,7 @@ class Glass
         #=end height_at_volume
         
 
-    get_data: (flow_rate) ->
+    get_fddata: (flow_rate) ->
       data = []
 
       volume = 0
@@ -390,10 +390,10 @@ class Glass
         }
 
         volume = volume + 1
-      
+     
       data
      
-    get_hdata: (flow_rate, from_bowl = true) ->
+    get_data: (flow_rate, from_bowl = false) ->
       data = []
 
       # find last height under the bowl
@@ -416,6 +416,7 @@ class Glass
         h++
 
       data
+
 
 
 
