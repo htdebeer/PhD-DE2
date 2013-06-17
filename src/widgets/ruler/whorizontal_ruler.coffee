@@ -10,6 +10,8 @@ class WHorizontalRuler extends Widget
     @spec =
       orientation: "horizontal"
       rounded_corners: 0
+      measure_line_width: @width + @height
+      
 
     super(@canvas, @x, @y, @spec)
     @_draw()

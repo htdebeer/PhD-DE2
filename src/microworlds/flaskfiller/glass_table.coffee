@@ -8,6 +8,9 @@ class GlassTable
     @selected_all = false
     @is_filling = false
     @timer_id = -1
+    @editing = false
+
+    @hide_graph = false
 
     @table = container.append('table')
       .classed('table', true)
@@ -70,6 +73,7 @@ class GlassTable
       glass.glass.fill_to_volume volume
       glass?.representation.fill_to_height glass.glass.current_height
       @update_row glass
+
       
   update_row: (glass) ->
     d3.select("##{glass.name}-volume").property('value', glass.glass.volume())
@@ -165,6 +169,7 @@ class GlassTable
 
     row.append('td')
       .append('button')
+      .classed('btn', true)
       .append('i')
       .attr('id', "#{glass.name}-fill")
       .classed('icon-play', true)
@@ -172,6 +177,7 @@ class GlassTable
 
     row.append('td')
       .append('button')
+      .classed('btn', true)
       .append('i')
       .attr('id', "#{glass.name}-empty")
       .classed('icon-backward', true)
@@ -179,6 +185,7 @@ class GlassTable
 
     row.append('td')
       .append('button')
+      .classed('btn', true)
       .append('i')
       .attr('id', "#{glass.name}-full")
       .classed('icon-forward', true)
@@ -186,27 +193,37 @@ class GlassTable
 
 
     row.append('td')
-      .append('button')
-      .append('i')
-      .attr('id', "#{glass.name}-edit")
-      .classed('icon-wrench', true)
+    #.append('button')
+    #.append('i')
+    #.attr('id', "#{glass.name}-edit")
+    #.classed('icon-wrench', true)
+    #.on('click', @edit(glass))
 
-    row.append('td')
+    gb = row.append('td')
       .append('button')
-      .append('i')
+      .classed('btn', true)
+      .classed('graphbutton', true)
+      
+    gb.append('i')
       .attr('id', "#{glass.name}-showgraph")
       .classed('icon-picture', true)
       .on('click', @graph(glass))
+    gb.attr('disabled', 'true') if @config?.hide_graph
 
-    row.append('td')
+    gb = row.append('td')
       .append('button')
-      .append('i')
+      .classed('btn', true)
+      .classed('graphbutton', true)
+
+    gb.append('i')
       .attr('id', "#{glass.name}-showchart")
       .classed('icon-signal', true)
       .on('click', @chart(glass))
+    gb.attr('disabled', 'true') if @config?.hide_graph
 
     row.append('td')
       .append('button')
+      .classed('btn', true)
       .append('i')
       .attr('id', "#{glass.name}-remove")
       .classed('icon-remove-sign', true)
@@ -244,6 +261,7 @@ class GlassTable
   _create_add_menu: (place)->
     add_button = place.append('div')
         .classed('btn-group', true)
+        .classed('dropup', true)
     add_button.append('a')
           .classed('btn', true)
           .classed('dropdown-toggle', true)
@@ -277,6 +295,7 @@ class GlassTable
       #.classed('icon-play', true)
     foot.append('td')
       .append('button')
+      .classed('btn', true)
       .append('i')
       .classed('icon-backward', true)
       .on('click', =>
@@ -286,6 +305,7 @@ class GlassTable
       )
     foot.append('td')
       .append('button')
+      .classed('btn', true)
       .append('i')
       .classed('icon-forward', true)
       .on('click', =>
@@ -298,6 +318,7 @@ class GlassTable
     foot.append('td')
     foot.append('td')
       .append('button')
+      .classed('btn', true)
       .append('i')
       .classed('icon-remove-sign', true)
       .on('click', =>

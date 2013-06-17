@@ -1,13 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
   <head>
     <meta charset="utf-8">
-    <title>Test</title>
+    <title>Onderwijsexperiment: les 2</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <style>
         .accordion-body[class*="in collapse"]{ overflow:visible;}
         .accordion-body.in:hover { overflow:visible; }
+
+        header {
+            padding-left: 1em;
+        }
 
         .axis path {
             fill: none;
@@ -33,7 +37,10 @@
     </style>
   </head>
   <body>
-      <h1>Test of flaskfiller 2.0</h1>
+      <header>
+          <h2>Onderwijsexperiment — Les 2</h2>
+          <h3>De stijgsnelheid van het water in de grafiek</h3>
+      </header>
       <div id="flaskfiller">
       </div>
   </body>
@@ -41,5 +48,5 @@
   <script src="lib/bootstrap.min.js"></script>
   <script src="lib/raphael.js"></script>
   <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <script src="lib/fftest.js"></script>
+  <script src="lib/les2.js"></script>
 </html>

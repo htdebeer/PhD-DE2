@@ -38,13 +38,15 @@ class Grapher
     @glasses.push glass
     @compute_scales()
     @toggle_graph glass
-
+    @toggle_tangents glass
 
   remove_graph: (glass) ->
     graph = d3.select("##{glass.name}-graph")
     graph.remove()
     chart = d3.select("##{glass.name}-chart")
     chart.remove()
+    tangents = d3.select("##{glass.name}-tangents")
+    tangents.remove()
     @glasses.splice @glasses.indexOf(glass), 1
     
 
@@ -93,6 +95,21 @@ class Grapher
         .attr('class', 'y axis')
     yaxis.call(@y_axis)
 
+
+    xraster = d3.select('g.x.grid')
+    if xraster.empty()
+      xraster = @svg_graph.append("g")
+        .attr("class", "x grid")
+
+    xraster.attr("transform", "translate(0," + @GRAPH_DIMENSIONS.height + ")")
+      .call(@x_axis.tickSize(-@GRAPH_DIMENSIONS.height, 0, 0).tickFormat(""))
+
+    yraster = d3.select('g.y.grid')
+    if yraster.empty()
+      yraster = @svg_graph.append("g")
+        .attr("class", "y grid")
+    yraster.call(@y_axis.tickSize(-@GRAPH_DIMENSIONS.width, 0, 0).tickFormat(""))
+
     d3.select('.y.axis')
       .append('text')
         .attr('text-anchor', 'middle')
@@ -129,7 +146,8 @@ class Grapher
     line = d3.svg.line()
       .x((d) => @x_scale(d[@X_QUANTITY.name]))
       .y((d) => @y_scale(d[@Y_QUANTITY.name]))
-      .interpolate('cardinal-open')
+      .interpolate('cardinal')
+      .tension(0)
 
     g = d3.select('#graph_container')
       .append('g')
@@ -141,9 +159,10 @@ class Grapher
       .attr('class', 'graph')
       .attr('fill', 'none')
       .attr('stroke', glass.color)
+      .style('stroke-wdith', 3)
 
 
-    @toggle_tangents glass
+      # @toggle_tangents glass
 
   draw_chart: (glass, id) ->
     
@@ -164,7 +183,7 @@ class Grapher
         .attr('fill', glass.color)
         .attr('stroke', glass.color)
 
-    @toggle_tangents glass
+        # @toggle_tangents glass
     
   toggle_tangents: (glass) ->
     graph = d3.select("##{glass.name}-tangents")
@@ -172,8 +191,6 @@ class Grapher
       @draw_tangents glass, glass.name
     else
       graph.remove()
-
-
 
   draw_tangents: (glass, id) ->
     g = d3.select('#graph_container')
@@ -184,7 +201,8 @@ class Grapher
     line = d3.svg.line()
       .x((d) => @x_scale(d[@X_QUANTITY.name]))
       .y((d) => @y_scale(d[@Y_QUANTITY.name]))
-      .interpolate('cardinal-open')
+      .interpolate('cardinal')
+      .tension(0)
 
     g = d3.select('#graph_container')
       .append('g')
@@ -216,16 +234,16 @@ class Grapher
         
         this_point = line_path.getPointAtLength(length_at_point)
 
-        if length_at_point > 1 and length_at_point < total_length - 1
-          prev_point = line_path.getPointAtLength(length_at_point - 2)
-          next_point = line_path.getPointAtLength(length_at_point + 2)
+        if length_at_point > 10 and length_at_point < total_length - 10
+          prev_point = line_path.getPointAtLength(length_at_point - 9)
+          next_point = line_path.getPointAtLength(length_at_point + 9)
           delta =
             x: next_point.x - prev_point.x
             y: next_point.y - prev_point.y
         else
           return
 
-        LENGTH = 40
+        LENGTH = 5
 
         tangent = d3.select('#graph_container')
           .append('line')

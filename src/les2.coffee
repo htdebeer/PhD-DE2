@@ -42,7 +42,7 @@ $(document).ready ->
     mm_per_pixel: 0.01
     glasses: [create_glass(json_glasses, 'cocktail')]
     glass_specs: json_glasses
-    #hide_graph: true
+    hide_graph: false
     graph:
       dimensions:
         width: 700
@@ -60,7 +60,7 @@ $(document).ready ->
           step: 1
         height:
           name: 'height'
-          label: 'hoogte van het waterpeil in het glas'
+          label: 'hoogtestijging van het waterpeil'
           unit: 'cm'
           step: 1
 

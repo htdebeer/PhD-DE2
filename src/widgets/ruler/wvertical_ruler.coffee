@@ -11,6 +11,7 @@ class WVerticalRuler extends Widget
     @spec =
       orientation: "vertical"
       rounded_corners: 0
+      measure_line_width: @height + @width
 
     super(@canvas, @x, @y, @spec)
     @_draw()
