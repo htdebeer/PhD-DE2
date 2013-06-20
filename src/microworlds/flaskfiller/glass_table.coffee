@@ -169,27 +169,27 @@ class GlassTable
 
     row.append('td')
       .append('button')
+      .on('click', @filling(glass))
       .classed('btn', true)
       .append('i')
       .attr('id', "#{glass.name}-fill")
       .classed('icon-play', true)
-      .on('click', @filling(glass))
 
     row.append('td')
       .append('button')
       .classed('btn', true)
+      .on('click', @empty(glass))
       .append('i')
       .attr('id', "#{glass.name}-empty")
       .classed('icon-backward', true)
-      .on('click', @empty(glass))
 
     row.append('td')
       .append('button')
+      .on('click', @full(glass))
       .classed('btn', true)
       .append('i')
       .attr('id', "#{glass.name}-full")
       .classed('icon-forward', true)
-      .on('click', @full(glass))
 
 
     row.append('td')
@@ -204,10 +204,11 @@ class GlassTable
       .classed('btn', true)
       .classed('graphbutton', true)
       
-    gb.append('i')
+    gb.append('button')
+      .on('click', @graph(glass))
+      .append('i')
       .attr('id', "#{glass.name}-showgraph")
       .classed('icon-picture', true)
-      .on('click', @graph(glass))
     gb.attr('disabled', 'true') if @config?.hide_graph
 
     gb = row.append('td')
@@ -215,21 +216,22 @@ class GlassTable
       .classed('btn', true)
       .classed('graphbutton', true)
 
-    gb.append('i')
+    gb.append('button')
+      .on('click', @chart(glass))
+      .append('i')
       .attr('id', "#{glass.name}-showchart")
       .classed('icon-signal', true)
-      .on('click', @chart(glass))
     gb.attr('disabled', 'true') if @config?.hide_graph
 
     row.append('td')
       .append('button')
+      .on('click', =>
+        @flaskfiller.remove glass
+      )
       .classed('btn', true)
       .append('i')
       .attr('id', "#{glass.name}-remove")
       .classed('icon-remove-sign', true)
-      .on('click', =>
-        @flaskfiller.remove glass
-      )
 
     glass.row = row
     @glasses.push glass
@@ -308,37 +310,37 @@ class GlassTable
       #.classed('icon-play', true)
     foot.append('td')
       .append('button')
-      .classed('btn', true)
-      .append('i')
-      .classed('icon-backward', true)
       .on('click', =>
         for glass in @glasses
           if glass.selected
             @empty(glass)()
       )
-    foot.append('td')
-      .append('button')
       .classed('btn', true)
       .append('i')
-      .classed('icon-forward', true)
+      .classed('icon-backward', true)
+    foot.append('td')
+      .append('button')
       .on('click', =>
         for glass in @glasses
           if glass.selected
             @full(glass)()
       )
+      .classed('btn', true)
+      .append('i')
+      .classed('icon-forward', true)
     foot.append('td')
     foot.append('td')
     foot.append('td')
     foot.append('td')
       .append('button')
-      .classed('btn', true)
-      .append('i')
-      .classed('icon-remove-sign', true)
       .on('click', =>
         for glass in @glasses
           if glass.selected
             @flaskfiller.remove glass
       )
+      .classed('btn', true)
+      .append('i')
+      .classed('icon-remove-sign', true)
     foot
 
   _create_head: ->

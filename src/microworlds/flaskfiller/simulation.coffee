@@ -4,8 +4,6 @@ WGlass = require '../../widgets/glass/wglass'
 WVerticalRuler = require '../../widgets/ruler/wvertical_ruler'
 WHorizontalRuler = require '../../widgets/ruler/whorizontal_ruler'
 
-WGrafter = require '../../widgets/glass/wgrafter'
-
 class Simulation
 
   constructor: (@flaskfiller, container, @config) ->

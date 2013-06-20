@@ -2,7 +2,6 @@
 (c) 2012, Huub de Beer (H.T.de.Beer@gmail.com)
 ###
 
-WRuler = require './wruler'
 Widget = require '../widget'
 
 class WVerticalRuler extends Widget
